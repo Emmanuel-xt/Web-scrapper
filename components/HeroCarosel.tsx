@@ -15,7 +15,7 @@ const heroImages = [
 
 const HeroCarosel = () => {
   return (
-    <div>
+    <div className="hero-carousel">
       {" "}
       <Carousel
       showThumbs={false}
@@ -39,6 +39,8 @@ const HeroCarosel = () => {
             ))
         }
       </Carousel>
+
+      <Image src={"/assets/icons/hand-drawn-arrow.svg"} alt="curved arrow" width={175} height={175} className=" max-md:hidden absolute -left-[15%] bottom-0 z-0" />
     </div>
   );
 };
