@@ -1,4 +1,3 @@
-'use client'
 
 import Modal from "@/components/Modal";
 import PriceInfoCard from "@/components/PriceInfoCard";
@@ -140,7 +139,7 @@ const page = async ({ params: { id } }: Props) => {
               value={`${product.currency} ${formatNumber(
                 product.averagePrice
               )}`}
-              borderColor="green"
+              borderColor="green-500"
             />
             <PriceInfoCard
               title="Highest Price"
@@ -148,17 +147,17 @@ const page = async ({ params: { id } }: Props) => {
               value={`${product.currency} ${formatNumber(
                 product.highestPrice
               )}`}
-              borderColor="green"
+              borderColor="green-500"
             />
             <PriceInfoCard
               title="Lowest Price"
               iconSrc="/assets/icons/arrow-down.svg"
               value={`${product.currency} ${formatNumber(product.lowestPrice)}`}
-              borderColor="blue"
+              borderColor="blue-500"
             />
           </div>
         </div>
-        <Modal />
+        <Modal  productId={id}/>
       </div>{" "}
       <div className="flex flex-col gap-16 ">
         <div className="flex flex-col gap-5">

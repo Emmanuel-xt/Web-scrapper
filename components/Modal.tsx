@@ -1,10 +1,16 @@
-"use  client";
+"use client";
 
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import Image from "next/image";
 
-const Modal = () => {
+interface Props {
+  productId: string;
+}
+
+const Modal = ({ productId }: Props) => {
   let [isOpen, setIsOpen] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const openModal = () => {
     setIsOpen(true);
@@ -45,9 +51,20 @@ const Modal = () => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-                <div className="dialog-content">
-                    
+              <div className="dialog-content">
+                <div className="flex flex-col">
+                  <div className="flex justify-between">
+                    <div className="p-3 border border-gray-200 rounded-10">
+                      <Image
+                        src="/assets/icons/logo.svg"
+                        width={20}
+                        height={20}
+                        alt="check"
+                      />
+                    </div>
+                  </div>
                 </div>
+              </div>
             </Transition.Child>
           </div>
         </Dialog>
