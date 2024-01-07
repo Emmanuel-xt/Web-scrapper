@@ -1,6 +1,6 @@
 import axios from "axios"
 import * as cheerio from 'cheerio'
-import { extractCurrency, extractPrice } from "../utils"
+import { extractCurrency, extractDescription, extractPrice } from "../utils"
 
 export async function scrapeAmazonProduct(url: string) {
     if (!url) return
@@ -27,8 +27,8 @@ export async function scrapeAmazonProduct(url: string) {
         const $ = cheerio.load(response.data)
         const title = $('#productTitle').text().trim()
         const ratings = $('#acrCustomerReviewText').text().trim()
-        console.log('title : ', title)
-        console.log('ratings : ', ratings)
+        // console.log('title : ', title)
+        // console.log('ratings : ', ratings)
 
         const currentPrice = extractPrice(
             $('.priceToPay span.a-price-whole'),
@@ -37,7 +37,16 @@ export async function scrapeAmazonProduct(url: string) {
             $('.a-price.a-text-price')
 
         );
-        console.log('currentPrice : ', currentPrice)
+
+        const originalPrice = extractPrice(
+            $('#priceblock_ourprice'),
+            $('.a-price.a-text-price span.a-offscreen'),
+            $('#listPrice'),
+            $('#priceblock_dealprice'),
+            $('.a-size-base.a-color-price')
+          );
+
+        // console.log('currentPrice : ', currentPrice)
 
         const images =
             $('#imgBlkFront').attr('data-a-dynamic-image')
@@ -45,13 +54,40 @@ export async function scrapeAmazonProduct(url: string) {
             || '{}'
 
         const imageUrls = Object.keys(JSON.parse(images))
-        console.log('image : ', imageUrls)
+        // console.log('image : ', imageUrls)
+
+        const outOfStock = $('#availability span').text().trim().toLowerCase() === 'currently unavailable';
 
         const currency = extractCurrency($('.a-price-symbol'))
-        console.log('currency : ', currency)
-        
-        const discountRate = $('.savingsPercentage').text().replace(/[-%]/g , '')
-        console.log('discount : ', discountRate)
+        // console.log('currency : ', currency)
+
+        const discountRate = $('.savingsPercentage').text().replace(/[-%]/g, '')
+        // console.log('discount : ', discountRate)
+
+        const description = extractDescription($)
+
+        const data = {
+            url,
+            currency: currency || $,
+            image: imageUrls[0] ,
+            title,
+            currentPrice: Number(currentPrice) || Number(originalPrice),
+            originalPrice : Number(originalPrice) ||  Number(currentPrice),
+            discountRate: Number(discountRate),
+            category: 'category',
+            priceHistory : [],
+            reviewsCount: 100,
+            stars: 4.5,
+            isOutOfStock: outOfStock,
+            description,
+            lowestPrice : Number(currentPrice)  ||  Number(originalPrice),
+            heighestPrice :  Number(originalPrice)  ||  Number(currentPrice) ,
+            averagePrice :  Number(originalPrice)  ||  Number(currentPrice) ,
+
+        }
+
+        // console.log('scrapped data = ' , data)
+        return data
 
     } catch (error: any) {
         throw new Error(`Failed to Scrape Product: ${error.message}`)

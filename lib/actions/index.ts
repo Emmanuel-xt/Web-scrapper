@@ -1,13 +1,79 @@
 'use server'
 
+import Product from "@/models/product.model"
+import { connectToDB } from "../database"
 import { scrapeAmazonProduct } from "../scraper"
+import { getAveragePrice, getHighestPrice, getLowestPrice } from "../utils"
+import { revalidatePath } from "next/cache"
 
-export async function scrapeAndStoreProduct(productUrl : string){
-    if(!productUrl)return
+export async function scrapeAndStoreProduct(productUrl: string) {
+    if (!productUrl) return
     try {
-        const scrapeProduct = await scrapeAmazonProduct(productUrl)
-        
-    } catch (error : any) {
+        connectToDB()
+
+        const scrapedProduct = await scrapeAmazonProduct(productUrl)
+
+        if (!scrapedProduct) return
+
+        let product = scrapedProduct
+
+        const existingProduct = await Product.findOne({ url: scrapedProduct.url })
+
+        if (existingProduct) {
+            const updatedPriceHistory: any = [
+                ...existingProduct.priceHistory,
+                { price: scrapedProduct.currentPrice }
+            ]
+
+            product = {
+                ...scrapedProduct,
+                priceHistory: updatedPriceHistory,
+                lowestPrice: getLowestPrice(updatedPriceHistory),
+                heighestPrice: getHighestPrice(updatedPriceHistory),
+                averagePrice: getAveragePrice(updatedPriceHistory)
+            }
+        }
+
+        const newProduct = await Product.findOneAndUpdate(
+            { url: scrapedProduct.url },
+            product,
+            { upsert: true, new: true }
+
+        );
+
+        revalidatePath(`/products/${newProduct._id}`)
+
+
+        console.log('Product created || updated succefully')
+    } catch (error: any) {
         throw new Error(`failed to Create or Update product: ${error.message}`)
+        // console.log(error)
+    }
+}
+
+export  async function getProductById(productId: string) {
+    try {
+        connectToDB()
+
+        const product = Product.findOne({_id: productId})
+
+        if (!product) return null
+
+        return product
+    } catch (error) {
+        console.log('error getting product' , error)
+    }
+}
+
+export async function getAllProduct() {
+    try {
+        connectToDB()
+
+        const products = await Product.find()
+
+        if(!products) return null
+        return products
+    } catch (error) {
+        console.log(error)
     }
 }
