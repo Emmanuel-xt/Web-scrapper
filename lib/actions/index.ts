@@ -116,6 +116,8 @@ export async function addUserEmailToProduct(productId: string, userEmail: string
   
         await sendEmail(emailContent, [userEmail]);
       }
+      alert('Email has already been stalled for this Product, Check your Mail Box')
+      console.log('Email has already been stalled for this Product, Check your Mail Box')
     } catch (error) {
       console.log(error);
     }

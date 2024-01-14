@@ -80,40 +80,8 @@ export async function generateEmailBody(
   return { subject, body };
 }
 
-// export async function sendEmail({to , name , subject , body} :
-//    {to : string ; name : string ; subject : string ; body : string} , sendTo[]){
-//     const {GMAIL_USERNAME  , GMAIL_PASSWORD} = process.env
-//     const transport = nodemailer.createTransport({
-//       service : 'gmail' ,
-//       auth : {
-//         user : GMAIL_USERNAME ,
-//         pass : GMAIL_PASSWORD
-//       }
-//     })
-//     try {
-//       const test = await transport.verify()
-//       console.log(test)
-//     } catch (error) {
-//       console.log(error);
-
-//     }
-
-//     try {
-//       const sendResult = await transport.sendMail({
-//         from : GMAIL_USERNAME , 
-//         to : '',
-//         subject : '',
-//         html : body,
-//       })
-
-//       console.log(sendResult)
-//     } catch (error) {
-//       console.log('error sending mail' , error)
-//     }
-//    }
-
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
-
+  
   const transporter = nodemailer.createTransport({
     pool: true,
     service: 'gmail',
@@ -123,6 +91,7 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
     },
     maxConnections: 1
   })
+
   try {
     const test = await transporter.verify()
     console.log('test --> ' ,test)
@@ -131,7 +100,7 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
 
   }
   const mailOptions = {
-    from: process.env.GMAIL_USERNAME,
+    from: 'eokeke320@gmail.com',
     to: sendTo,
     html: emailContent.body,
     subject: emailContent.subject,
@@ -143,10 +112,4 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
   } catch (error) {
     console.error('Error sending email:', error);
   }
-
-  // transporter.sendMail(mailOptions, (error: any, info: any) => {
-  //   if (error) return console.log(error);
-
-  //   console.log('Email sent: ', info);
-  // })
 }
